@@ -88,4 +88,4 @@ The project follows the same release process as the other libraries in the MetaM
 
 ## Attributions
 
-This code was inspired by [eth-ledger-keyring](https://github.com/jamespic/eth-ledger-keyring) and [eth-hd-keyring](https://github.com/MetaMask/eth-hd-keyring)
+This code was inspired by [eth-trezor-keyring](https://github.com/MetaMask/eth-trezor-keyring) and [eth-hd-keyring](https://github.com/MetaMask/eth-hd-keyring)
