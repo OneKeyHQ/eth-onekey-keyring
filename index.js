@@ -134,7 +134,7 @@ class OneKeyKeyring extends EventEmitter {
     this.iframe = null;
 
     HardwareSDK.init({
-      debug: true,
+      debug: false,
       env: 'webusb',
       connectSrc: IFRAME_SRC,
     }).then(() => {
@@ -202,6 +202,12 @@ class OneKeyKeyring extends EventEmitter {
             response.payload.device &&
             response.payload.device.connectId
           ) {
+            if (
+              this.device &&
+              this.device.connectId !== response.payload.device.connectId
+            ) {
+              this.forgetDevice();
+            }
             resolve(response.payload.device);
           }
         })
@@ -221,7 +227,7 @@ class OneKeyKeyring extends EventEmitter {
     return new Promise((resolve, reject) => {
       HardwareSDK.evmGetPublicKey(this.device.connectId, '', {
         path: this.hdPath,
-        showOnOneKey: true,
+        showOnOneKey: false,
       })
         .then((response) => {
           if (response.success) {
@@ -423,6 +429,7 @@ class OneKeyKeyring extends EventEmitter {
     }
 
     try {
+      this.device = await this.getDevice();
       const status = await this.unlock();
       await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
       const response = await HardwareSDK.evmSignTransaction(
@@ -461,7 +468,8 @@ class OneKeyKeyring extends EventEmitter {
   }
 
   // For personal_sign, we need to prefix the message:
-  signPersonalMessage(withAccount, message) {
+  async signPersonalMessage(withAccount, message) {
+    this.device = await this.getDevice();
     return new Promise((resolve, reject) => {
       this.unlock()
         .then((status) => {
@@ -526,6 +534,7 @@ class OneKeyKeyring extends EventEmitter {
       message_hash, // eslint-disable-line camelcase
     } = dataWithHashes;
 
+    this.device = await this.getDevice();
     const status = await this.unlock();
     await wait(status === 'just unlocked' ? DELAY_BETWEEN_POPUPS : 0);
 
@@ -568,6 +577,7 @@ class OneKeyKeyring extends EventEmitter {
     this.page = 0;
     this.unlockedAccount = 0;
     this.paths = {};
+    this.device = null;
   }
 
   /**
